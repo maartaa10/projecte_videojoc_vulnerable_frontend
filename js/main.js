@@ -12,17 +12,25 @@ class Mario {
     }
   
     moure(direccio) {
+      const jocElement = document.querySelector('.joc'); 
+    
       if (direccio === 'esquerra' && this.posicio.x > 0) {
         this.posicio.x -= this.pas;
-        this.element.style.transform = 'scale(-2, 2)'; // girem horitzontalment
+        this.element.style.transform = 'scale(-2, 2)'; 
+        
+        const posicioFonsActual = parseInt(getComputedStyle(jocElement).backgroundPositionX || 0, 10);
+        jocElement.style.backgroundPositionX = `${posicioFonsActual + this.pas}px`;
       } else if (direccio === 'dreta') {
         this.posicio.x += this.pas;
-        this.element.style.transform = 'scale(2)'; // torna a mirar a la dreta
+        this.element.style.transform = 'scale(2)'; 
+       
+        const posicioFonsActual = parseInt(getComputedStyle(jocElement).backgroundPositionX || 0, 10);
+        jocElement.style.backgroundPositionX = `${posicioFonsActual - this.pas}px`;
       }
-  
+    
       this.frame = (this.frame + 1) % 3;
       this.element.style.backgroundPosition = `-${this.frame * 32}px 0px`;
-  
+    
       this.actualitzarPosicio();
     }
   
