@@ -1,10 +1,10 @@
 class Mario {
     constructor(element) {
       this.element = element;
-      this.posicio = { x: 50, y: 0 };
+      this.posicio = { x: 50, y: 55 };
       this.estaSaltant = false;
-      this.alcadaSalt = 100;
-      this.velocitatSalt = 20;
+      this.alcadaSalt = 150;
+      this.velocitatSalt = 5;
       this.pas = 10;
       this.frame = 5;
       this.element.style.backgroundPosition = `-${this.frame * 16}px 0px`;
@@ -20,15 +20,17 @@ class Mario {
         const posicioFonsActual = parseInt(getComputedStyle(jocElement).backgroundPositionX || 0, 10);
         jocElement.style.backgroundPositionX = `${posicioFonsActual + this.pas}px`;
       } else if (direccio === 'dreta') {
-        this.posicio.x += this.pas;
-        this.element.style.transform = 'scale(2)'; 
-       
+        if (this.posicio.x < (jocElement.clientWidth)/2 ) {
+          this.posicio.x += this.pas;
+          this.element.style.transform = 'scale(2)'; 
+        }
         const posicioFonsActual = parseInt(getComputedStyle(jocElement).backgroundPositionX || 0, 10);
         jocElement.style.backgroundPositionX = `${posicioFonsActual - this.pas}px`;
       }
     
+      this.frame = Math.floor((this.frame + 1) % 9);
       if (this.frame <= 5) this.frame = 6;
-      else this.frame = (this.frame + 1) % 9;
+      console.log(this.frame);
       this.element.style.backgroundPosition = `-${this.frame * 16}px 0px`;
     
       this.actualitzarPosicio();
@@ -42,9 +44,9 @@ class Mario {
         if (this.posicio.y >= this.alcadaSalt) {
           clearInterval(intervalAmunt);
           let intervalAvall = setInterval(() => {
-            if (this.posicio.y <= 0) {
+            if (this.posicio.y <= 55) {
               clearInterval(intervalAvall);
-              this.posicio.y = 0;
+              this.posicio.y = 55;
               this.estaSaltant = false;
             } else {
               this.posicio.y -= this.velocitatSalt;
@@ -78,6 +80,83 @@ class Mario {
   });
   
 
-
-
+  document.addEventListener('DOMContentLoaded', () => {
+    const elementGoomba = document.querySelector('.goomba');
+    const goomba = new Goomba(elementGoomba, { x: 300, y: 55 });
   
+    function gameLoop() {
+      goomba.moure();
+      requestAnimationFrame(gameLoop);
+    }
+  
+    gameLoop();
+  });
+
+  let score = 0;
+let level = 1;
+let lives = 3;
+let startTime = Date.now();
+
+function updateInfoPanel() {
+  document.getElementById('score').textContent = score;
+  document.getElementById('level').textContent = level;
+  document.getElementById('lives').textContent = lives;
+
+  const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+  const minutes = String(Math.floor(elapsedTime / 60)).padStart(2, '0');
+  const seconds = String(elapsedTime % 60).padStart(2, '0');
+  document.getElementById('time').textContent = `${minutes}:${seconds}`;
+}
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'ArrowRight') {
+    score += 10; 
+  } else if (event.key === 'ArrowLeft') {
+    lives -= 1;
+  }
+});
+
+setInterval(updateInfoPanel, 1000);
+
+function gameLoop(now = performance.now()) {
+  goomba.moure(now);
+
+  const marioRect = mario.element.getBoundingClientRect();
+  const goombaRect = goomba.element.getBoundingClientRect();
+
+  if (
+    marioRect.left < goombaRect.right &&
+    marioRect.right > goombaRect.left &&
+    marioRect.top < goombaRect.bottom &&
+    marioRect.bottom > goombaRect.top &&
+    mario.velocitatY >= 0
+  ) {
+    lives -= 1; 
+    updateInfoPanel();
+
+    if (lives <= 0) {
+      gameOver(); 
+      return;
+    }
+  }
+
+  requestAnimationFrame(gameLoop);
+}
+
+function gameOver() {
+  const gameOverDiv = document.createElement('div');
+  gameOverDiv.textContent = 'Game Over';
+  gameOverDiv.style.position = 'absolute';
+  gameOverDiv.style.top = '50%';
+  gameOverDiv.style.left = '50%';
+  gameOverDiv.style.transform = 'translate(-50%, -50%)';
+  gameOverDiv.style.color = 'red';
+  gameOverDiv.style.fontSize = '32px';
+  gameOverDiv.style.fontFamily = 'Press Start 2P, monospace';
+  document.body.appendChild(gameOverDiv);
+
+  goomba.velocitat.x = 0;
+  mario.velocitatY = 0;
+
+  cancelAnimationFrame(gameLoop);
+}

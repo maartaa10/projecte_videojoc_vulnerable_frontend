@@ -29,8 +29,6 @@ body {
   
   .mario {
     position: absolute;
-    bottom: 50px;
-    left: 50px;
     width: 16px;
     height: 32px;
     background-image: url("../img/mario.png");
@@ -38,6 +36,50 @@ body {
     background-position: 0 0;
     image-rendering: pixelated;
     transform: scale(2);
-    transform-origin: bottom left;
+    /*transform-origin: bottom left;*/
+  }
+  .goomba {
+    position: absolute;
+    left: 300px;
+    width: 16px; 
+    height: 32px; 
+    background-image: url("../img/enemics.png");
+    background-repeat: no-repeat;
+    background-position: 0 0; 
+    image-rendering: pixelated; 
+    transform: scale(2); 
+/*     transform-origin: bottom left;  */
+  }
+  .info-panel {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    width: 200px;
+    padding: 10px;
+    background-color: #000;
+    color: #fff;
+    font-family: 'Press Start 2P', monospace; 
+    font-size: 12px;
+    border: 2px solid #fff;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
   }
   
+  .info-item {
+    margin-bottom: 5px;
+  }
+  
+  .info-item span {
+    color: #FFD700;
+  }
+
+  .game-over {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: red;
+    font-size: 32px;
+    font-family: 'Press Start 2P', monospace;
+    text-align: center;
+  }
