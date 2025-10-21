@@ -6,14 +6,13 @@ class Mario {
       this.alcadaSalt = 100;
       this.velocitatSalt = 20;
       this.pas = 10;
-      this.frame = 0;
-  
+      this.frame = 5;
+      this.element.style.backgroundPosition = `-${this.frame * 16}px 0px`;
       this.actualitzarPosicio();
     }
   
     moure(direccio) {
       const jocElement = document.querySelector('.joc'); 
-    
       if (direccio === 'esquerra' && this.posicio.x > 0) {
         this.posicio.x -= this.pas;
         this.element.style.transform = 'scale(-2, 2)'; 
@@ -28,8 +27,9 @@ class Mario {
         jocElement.style.backgroundPositionX = `${posicioFonsActual - this.pas}px`;
       }
     
-      this.frame = (this.frame + 1) % 3;
-      this.element.style.backgroundPosition = `-${this.frame * 32}px 0px`;
+      if (this.frame <= 5) this.frame = 6;
+      else this.frame = (this.frame + 1) % 9;
+      this.element.style.backgroundPosition = `-${this.frame * 16}px 0px`;
     
       this.actualitzarPosicio();
     }
@@ -76,4 +76,8 @@ class Mario {
       mario.saltar();
     }
   });
+  
+
+
+
   
