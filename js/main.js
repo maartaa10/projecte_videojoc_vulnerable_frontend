@@ -79,13 +79,33 @@ class Mario {
     }
   });
   
-
+  let gameState = 'play'; 
   document.addEventListener('DOMContentLoaded', () => {
     const elementGoomba = document.querySelector('.goomba');
     const goomba = new Goomba(elementGoomba, { x: 300, y: 55 });
   
-    function gameLoop() {
-      goomba.moure();
+    function gameLoop(now = performance.now()) {
+      goomba.moure(now);
+    
+      
+      const marioRect = mario.element.getBoundingClientRect();
+      const goombaRect = goomba.element.getBoundingClientRect();
+    
+      if (
+        marioRect.left < goombaRect.right &&
+        marioRect.right > goombaRect.left &&
+        marioRect.top < goombaRect.bottom &&
+        marioRect.bottom > goombaRect.top
+      ) {
+        lives -= 1;
+        updateInfoPanel();
+    
+        if (lives <= 0) {
+          gameOver();
+          return;
+        }
+      }
+    
       requestAnimationFrame(gameLoop);
     }
   
@@ -144,19 +164,81 @@ function gameLoop(now = performance.now()) {
 }
 
 function gameOver() {
+  gameState = 'gameOver'; 
+
+  document.body.style.backgroundColor = 'red';
+
   const gameOverDiv = document.createElement('div');
-  gameOverDiv.textContent = 'Game Over';
+  gameOverDiv.innerHTML = `
+    <div>Game Over</div>
+    <div>Puntuació final: ${score}</div>
+    <div>Prem enter per reiniciar</div>
+  `;
   gameOverDiv.style.position = 'absolute';
   gameOverDiv.style.top = '50%';
   gameOverDiv.style.left = '50%';
   gameOverDiv.style.transform = 'translate(-50%, -50%)';
-  gameOverDiv.style.color = 'red';
+  gameOverDiv.style.color = 'white';
   gameOverDiv.style.fontSize = '32px';
   gameOverDiv.style.fontFamily = 'Press Start 2P, monospace';
+  gameOverDiv.style.textAlign = 'center';
   document.body.appendChild(gameOverDiv);
 
   goomba.velocitat.x = 0;
   mario.velocitatY = 0;
 
+  document.removeEventListener('keydown', handleMarioMovement);
+
   cancelAnimationFrame(gameLoop);
+
+  document.addEventListener('keydown', restartGameOnSpace);
+}
+function handleMarioMovement(event) {
+  if (gameState !== 'play') return; 
+
+  if (event.key === 'ArrowLeft') {
+    mario.moure('esquerra');
+  } else if (event.key === 'ArrowRight') {
+    mario.moure('dreta');
+  } else if (event.key === 'ArrowUp') {
+    mario.saltar();
+  }
+}
+
+function restartGame() {
+
+  score = 0;
+  level = 1;
+  lives = 3;
+  startTime = Date.now();
+
+  
+  document.body.style.backgroundColor = '#87CEEB';
+
+
+  const gameOverDiv = document.querySelector('div[style*="Game Over"]');
+  if (gameOverDiv) {
+    gameOverDiv.remove();
+  }
+
+
+  document.addEventListener('keydown', handleMarioMovement);
+
+  goomba.posicio.x = 300;
+  goomba.velocitat.x = -1;
+
+  requestAnimationFrame(gameLoop);
+}
+document.addEventListener('keydown', handleMarioMovement);
+function restartGameOnSpace(event) {
+  if (event.key === 'enter') {
+    document.removeEventListener('keydown', restartGameOnSpace);
+
+    
+    gameState = 'play';
+
+
+    restartGame();
+  }
+
 }
